@@ -122,10 +122,10 @@ if __name__ == '__main__':
                         raise
 		if(not(os.path.exists(args[indexD + 1]))):
                         raise
-		if(not(os.path.isfile(args[indexO + 1]))):
+		if(not(os.path.dirname(args[indexO + 1]))):
 			raise
-		if(not(os.path.exists(args[indexO + 1]))):
-                        raise
+#		if(not(os.path.exists(args[indexO + 1]))):
+#                        raise
 		with open(args[indexC + 1]) as file1:
 			lines = file1.readlines()
 			for line in lines:
