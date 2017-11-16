@@ -83,15 +83,15 @@ class UserData(object):
 					wages = 0
 				income = income - wages - income * percentage
 			socialsecurity = "{:.2f}".format(socialsecurity).split('.')
-			socialsecurity[1] = "\033[1;32;40m"+socialsecurity[1]+"\033[0m"
-			socialsecurity = ".".join(socialsecurity)
+			socialsecurity[1] = "\033[1;32;40m"+"."+socialsecurity[1]+"\033[0m"
+			socialsecurity = "".join(socialsecurity)
 			wages = "{:.2f}".format(wages).split('.')
-			wages[1] =  "\033[1;32;40m"+wages[1]+"\033[0m"
-			wages = ".".join(wages)
+			wages[1] =  "\033[1;32;40m"+"."+wages[1]+"\033[0m"
+			wages = "".join(wages)
 		#	wages = "\033[1;32;40m"+"{:.2f}".format(wages)+"\033[0m"
 			income = "{:.2f}".format(income).split('.')
-			income[1] =  "\033[1;32;40m"+income[1]+"\033[0m"
-			income = ".".join(income)
+			income[1] =  "\033[1;32;40m"+"."+income[1]+"\033[0m"
+			income = "".join(income)
 
 			para = [key,value,str(socialsecurity),str(wages),str(income)]
 			self._userdata[key] = ','.join(para)
@@ -103,6 +103,7 @@ class UserData(object):
 if __name__ == '__main__':
 	try:
 		import sys
+		import os.path
 		test = Config()
 		User = UserData()
 		args = sys.argv[1:]
@@ -113,11 +114,15 @@ if __name__ == '__main__':
 		indexO = args.index('-o')
 		if((indexC%2)and(indexD%2)and(index%2)):
 			raise
-		if(not(args[indexC + 1].find('test.cfg'))):
+		if(not(os.path.isfile(args[indexC + 1]))):
 			raise
-		if(not(args[indexD + 1].find('user.csv'))):
+		if(not(os.path.exists(args[indexC + 1]))):
                         raise
-		if(not(args[indexE + 1].find('test.cfg'))):
+		if(not(os.path.isfile(args[indexD + 1]))):
+                        raise
+		if(not(os.path.exists(args[indexD + 1]))):
+                        raise
+		if(not(os.path.isfile(args[indexO + 1]))):
 			raise
 		with open(args[indexC + 1]) as file1:
 			lines = file1.readlines()
