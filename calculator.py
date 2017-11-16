@@ -82,6 +82,17 @@ class UserData(object):
 				else:
 					wages = 0
 				income = income - wages - income * percentage
+			socialsecurity = "{:.2f}".format(socialsecurity).split('.')
+			socialsecurity[1] = "\033[1;32;40m"+socialsecurity[1]+"\033[0m"
+			socialsecurity = ".".join(socialsecurity)
+			wages = "{:.2f}".format(wages).split('.')
+			wages[1] =  "\033[1;32;40m"+wages[1]+"\033[0m"
+			wages = ".".join(wages)
+		#	wages = "\033[1;32;40m"+"{:.2f}".format(wages)+"\033[0m"
+			income = "{:.2f}".format(income).split('.')
+			income[1] =  "\033[1;32;40m"+income[1]+"\033[0m"
+			income = ".".join(income)
+
 			para = [key,value,str(socialsecurity),str(wages),str(income)]
 			self._userdata[key] = ','.join(para)
 	def dumptofile(self):
@@ -90,35 +101,48 @@ class UserData(object):
 			Str.append(self._userdata[key])
 		return Str
 if __name__ == '__main__':
-	import sys
-	test = Config()
-	User = UserData()
-	args = sys.argv[1:]
-	indexC = args.index('-c')
-	indexD = args.index('-d')
-	indexO = args.index('-o')
-	with open(args[indexC + 1]) as file1:
-		lines = file1.readlines()
-		for line in lines:
-			test.set_config(line)
-	JiShuL = test.get_config('JiShuL')
-	JiShuH = test.get_config('JiShuH')
-	YangLao = test.get_config('YangLao')
-	YiLiao = test.get_config('YiLiao')
-	ShiYe = test.get_config('ShiYe')
-	GongShang = test.get_config('GongShang')
-	ShengYu = test.get_config('ShengYu')
-	GongJiJin = test.get_config('GongJiJin')
-	with open(args[indexD + 1]) as file2:
-		users = file2.readlines()
-		for user in users:
-			User.set_userdata(user)
+	try:
+		import sys
+		test = Config()
+		User = UserData()
+		args = sys.argv[1:]
+		if(len(args)<6):
+			raise
+		indexC = args.index('-c')
+		indexD = args.index('-d')
+		indexO = args.index('-o')
+		if((indexC%2)and(indexD%2)and(index%2)):
+			raise
+		if(not(args[indexC + 1].find('test.cfg'))):
+			raise
+		if(not(args[indexD + 1].find('user.csv'))):
+                        raise
+		if(not(args[indexE + 1].find('test.cfg'))):
+			raise
+		with open(args[indexC + 1]) as file1:
+			lines = file1.readlines()
+			for line in lines:
+				test.set_config(line)
+		JiShuL = test.get_config('JiShuL')
+		JiShuH = test.get_config('JiShuH')
+		YangLao = test.get_config('YangLao')
+		YiLiao = test.get_config('YiLiao')
+		ShiYe = test.get_config('ShiYe')
+		GongShang = test.get_config('GongShang')
+		ShengYu = test.get_config('ShengYu')
+		GongJiJin = test.get_config('GongJiJin')
+		with open(args[indexD + 1]) as file2:
+			users = file2.readlines()
+			for user in users:
+				User.set_userdata(user)
 		
-		User.calculate(JiShuL,JiShuH,YangLao,YiLiao,ShiYe,GongShang,ShengYu,GongJiJin)
-	with open(args[indexO + 1],'a') as file3:
-		items = User.dumptofile()
-		for item in items:
-			file3.write(item)
+			User.calculate(JiShuL,JiShuH,YangLao,YiLiao,ShiYe,GongShang,ShengYu,GongJiJin)
 	
-	with open(args[indexO + 1]) as file:
-		file.readlines()
+		with open(args[indexO + 1],'w') as file3:
+			file3.write('')
+		with open(args[indexO + 1],'a') as file3:
+			items = User.dumptofile()
+			for item in items:
+				file3.write(item + '\n')
+	except:
+		print("Parameter Error")
