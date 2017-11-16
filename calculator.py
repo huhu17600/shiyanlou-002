@@ -82,16 +82,16 @@ class UserData(object):
 				else:
 					wages = 0
 				income = income - wages - income * percentage
-			socialsecurity = "{:.2f}".format(socialsecurity).split('.')
-			socialsecurity[1] = "\033[1;32;40m"+"."+socialsecurity[1]+"\033[0m"
-			socialsecurity = "".join(socialsecurity)
-			wages = "{:.2f}".format(wages).split('.')
-			wages[1] =  "\033[1;32;40m"+"."+wages[1]+"\033[0m"
-			wages = "".join(wages)
+			socialsecurity = "{:.2f}".format(socialsecurity)
+		#	socialsecurity[1] = "\033[1;32;40m"+"."+socialsecurity[1]+"\033[0m"
+		#	socialsecurity = "".join(socialsecurity)
+			wages = "{:.2f}".format(wages)
+#			wages[1] =  "\033[1;32;40m"+"."+wages[1]+"\033[0m"
+#			wages = "".join(wages)
 		#	wages = "\033[1;32;40m"+"{:.2f}".format(wages)+"\033[0m"
-			income = "{:.2f}".format(income).split('.')
-			income[1] =  "\033[1;32;40m"+"."+income[1]+"\033[0m"
-			income = "".join(income)
+			income = "{:.2f}".format(income)
+#			income[1] =  "\033[1;32;40m"+"."+income[1]+"\033[0m"
+#			income = "".join(income)
 
 			para = [key,value,str(socialsecurity),str(wages),str(income)]
 			self._userdata[key] = ','.join(para)
@@ -112,7 +112,7 @@ if __name__ == '__main__':
 		indexC = args.index('-c')
 		indexD = args.index('-d')
 		indexO = args.index('-o')
-		if((indexC%2)and(indexD%2)and(index%2)):
+		if((indexC%2)or(indexD%2)or(indexO%2)):
 			raise
 		if(not(os.path.isfile(args[indexC + 1]))):
 			raise
@@ -124,6 +124,8 @@ if __name__ == '__main__':
                         raise
 		if(not(os.path.isfile(args[indexO + 1]))):
 			raise
+		if(not(os.path.exists(args[indexO + 1]))):
+                        raise
 		with open(args[indexC + 1]) as file1:
 			lines = file1.readlines()
 			for line in lines:
