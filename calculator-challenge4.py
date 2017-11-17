@@ -1,51 +1,71 @@
 #!/usr/bin/env python3
 
-from multiprocessing import Process, Queue
-
+from multiprocessing import Process, Queue, Lock
 import sys
-
+import os.path
 queue1 = Queue()
 queue2 = Queue()
-def queue1_f1(a,b):
-	args = sys.argv[1:]
-	test_data = []
-	user_data = []
-	indexC = args.index('-c')
-	indexD = args.index('-d')
-#       indexO = args.index('-o')
-	with open(args[indexC + 1]) as file1:
-		lines = file1.readlines()
-		for line in lines:
-			Str = line.split('=')
-			test_data.append(Str[0].strip())
-			test_data.append(Str[1].strip(' \n'))
-#               print(test_data)
-	with open(args[indexD + 1]) as file2:
-		lines = file2.readlines()
-		for line in lines:
-			Str = line.split(',')
-			user_data.append(Str[0].strip())
-			user_data.append(Str[1].strip(' \n'))
-#                print(user_data)
+def queue1_f1():
+	with lock:
+		print("here is queue1_f1")
+		args = sys.argv[1:]
+		if(len(args)<6):
+			raise
+		indexC = args.index('-c')
+		indexD = args.index('-d')
+		indexO = args.index('-o')
+		if((indexC%2)or(indexD%2)or(indexO%2)):
+			raise
+		if(not(os.path.isfile(args[indexC + 1]))):
+			raise
+#		if(not(os.path.exists(args[indexC + 1]))):
+ #                       raise
+		if(not(os.path.isfile(args[indexD + 1]))):
+                        raise
+#		if(not(os.path.exists(args[indexD + 1]))):
+#                        raise
+#		if(not(os.path.dirname(args[indexO + 1]))):
+#			raise
+		test_data = []
+		user_data = []
+		with open(args[indexC + 1]) as file1:
+			lines = file1.readlines()
+			for line in lines:
+				Str = line.split('=')
+				test_data.append(Str[0].strip())
+				test_data.append(Str[1].strip(' \n'))
+	#               print(test_data)
+		with open(args[indexD + 1]) as file2:
+			lines = file2.readlines()
+			for line in lines:
+				Str = line.split(',')
+				user_data.append(Str[0].strip())
+				user_data.append(Str[1].strip(' \n'))
+	#                print(user_data)
 
-	queue1.put(test_data)
-	queue1.put(user_data)
+		queue1.put(test_data)
+		queue1.put(user_data)
 
 def queue1_f2():
-	data1 = queue1.get()
-	data2 = queue2.get()
-	result_data = calculator(data1,data2)
-	queue2.put(result_data)
+	with lock:
+		print('here is queue1_f2')
+		data1 = queue1.get()
+		data2 = queue1.get()
+		result_data = calculator(data1,data2)
+		queue2.put(result_data)
 
 def queue2_f1():
-	args = sys.argv[1:]
-	data = queue2.get()
-	with open(args[indexO + 1],'w') as file3:
-		file3.write('')
-	with open(args[indexO + 1],'a') as file3:
-		for item in data:
-			file3.write(item + '\n')
-	 
+	with lock:
+		print('here is queue2_f1')
+		args = sys.argv[1:]
+		indexO = args.index('-o')
+		data = queue2.get()
+		with open(args[indexO + 1],'w') as file3:
+			file3.write('')
+		with open(args[indexO + 1],'a') as file3:
+			for item in data:
+				file3.write(item + '\n')
+				 
 def calculator(a,b):
 	result = []
 	JiShuL = a[a.index('JiShuL') + 1]
@@ -56,7 +76,8 @@ def calculator(a,b):
 	GongShang = a[a.index('GongShang') + 1]
 	ShengYu = a[a.index('ShengYu') + 1]
 	GongJiJin = a[a.index('GongJiJin') + 1]
-	for i in len(b)//2:
+	num = len(b)//2
+	for i in range(num):
 		percentage = float(YangLao)+float(YiLiao)+float(ShiYe)+float(GongShang)+float(ShengYu)+float(GongJiJin)
 			
 		income =float(b[i*2+1])
@@ -123,18 +144,24 @@ def calculator(a,b):
 		socialsecurity = "{:.2f}".format(socialsecurity)
 		wages = "{:.2f}".format(wages)
 		income = "{:.2f}".format(income)
-		para = [b[0],value,str(socialsecurity),str(wages),str(income)]
+		para = [b[i*2],b[i*2+1],str(socialsecurity),str(wages),str(income)]
 		para = ','.join(para)
 		result.append(para)
 	return result
 
-def main():
-	Process(target=queue1_f1).start()
-	Process(target=queue1_f2).start()
-	Process(target=queue2_f1).start()
 if __name__ == '__main__':
 
 	try:
-		main()	
+		lock = Lock()
+		procs = []
+
+		procs.append(Process(target=queue1_f1))
+		procs.append(Process(target=queue1_f2))
+		procs.append(Process(target=queue2_f1))
+
+		for p in procs:
+			p.start()
+			p.join()
+
 	except:
 		print('Parameter Error')	
