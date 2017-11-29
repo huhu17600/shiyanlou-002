@@ -25,6 +25,38 @@ class File(db.Model):
         self.created_time = created_time
         self.category = category
         self.content = content
+	def add_tag(self, tag_name):
+        file_item = mongo.files.find_one({'file_id': self.id})
+        if file_item:
+            tags = file_item['tags']
+            if tag_name not in tags:
+                tags.append(tag_name)
+            mongo.files.update_one({'file_id': self.id}, {'$set': {'tags': tags}})
+        else:
+            tags = [tag_name]
+            mongo.files.insert_one({'file_id': self.id, 'tags': tags})
+        return tags
+
+    def remove_tag(self, tag_name):
+        file_item = mongo.files.find_one({'file_id': self.id})
+        if file_item:
+            tags = file_item['tags']
+            try:
+                new_tags = tags.remove(tag_name)
+            except ValueError:
+                return tags
+            mongo.files.update_one({'file_id': self.id}, {'$set', {'tags': new_tags}})
+            return new_tags
+        return []
+
+    @property
+    def tags(self):
+        file_item = mongo.files.find_one({'file_id': self.id})
+        if file_item:
+            print(file_item)
+            return file_item['tags']
+        else:
+			return []
         
 class Category(db.Model):
     __tablename__ = 'categories'
