@@ -1,14 +1,14 @@
 from datetime import datetime
 from flask import Flask, render_template
 from flask_sqlalchemy import SQLAlchemy
-
+from pymongo import MongoClient
 
 app = Flask(__name__)
 
 app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql://root@localhost/shiyanlou'
 
 db = SQLAlchemy(app)
-
+mongo = MongoClient('127.0.0.1', 27017).shiyanlou
 
 class File(db.Model):
     __tablename__ = 'files'
